@@ -1,0 +1,46 @@
+# importing all necessary libraries
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.cluster import KMeans
+from sklearn.model_selection import train_test_split
+
+# Reading the data
+df=pd.read_csv("3D_spatial_network.txt",names=['OSM_ID','LONGITUDE','LATITUDE','AL
+TITUDE'])
+df.head()
+
+# Preprocessing the data and Splitting the dataset into train and test
+
+data = df.drop('OSM_ID',axis=1)
+train_data,test_data = train_test_split(data,test_size=0.3)
+std_scaler = MinMaxScaler()
+train_data['LONGITUDE']=train_data['LONGITUDE']/train_data['LONGITUDE'].max()
+train_data['LATITUDE']=train_data['LATITUDE']/train_data['LATITUDE'].max()
+train_data['ALTITUDE']=train_data['ALTITUDE']/train_data['ALTITUDE'].max()
+test_data['LONGITUDE']=test_data['LONGITUDE']/test_data['LONGITUDE'].max()
+test_data['LATITUDE']=test_data['LATITUDE']/test_data['LATITUDE'].max()
+test_data['ALTITUDE']=test_data['ALTITUDE']/test_data['ALTITUDE'].max()
+
+train_data.head()
+test_data.head()
+
+# Training Kmeans model for clustering
+clustering_Kmeans = KMeans(n_clusters=6)
+clustering_Kmeans.fit(train_data)
+
+# Predicting the test data for SVM
+pred=clustering_Kmeans.predict(test_data)
+print(pred)
+
+# Clustering
+
+plt.figure(figsize=(30,5))
+plt.subplot(1,3,1)
+sns.scatterplot(test_data['LONGITUDE'],test_data['LATITUDE'],hue=pred)
+
+plt.subplot(1,3,2)
+sns.scatterplot(test_data['LONGITUDE'],test_data['ALTITUDE'],hue=pred)
+
+plt.subplot(1,3,3)
+sns.scatterplot(test_data['LATITUDE'],test_data['ALTITUDE'],hue=pred)
